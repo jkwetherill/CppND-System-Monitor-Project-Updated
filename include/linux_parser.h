@@ -1,9 +1,15 @@
 #ifndef SYSTEM_PARSER_H
 #define SYSTEM_PARSER_H
 
+#include <dirent.h>
+#include <unistd.h>
+#include <sstream>
+#include <string>
+#include <vector>
 #include <fstream>
 #include <regex>
-#include <string>
+#include "assert.h"
+#include <stdexcept>
 
 namespace LinuxParser {
 // Paths
@@ -52,6 +58,9 @@ std::string Ram(int pid);
 std::string Uid(int pid);
 std::string User(int pid);
 long int UpTime(int pid);
+
+
+long int str2long(std::string Str);
 };  // namespace LinuxParser
 
 #endif

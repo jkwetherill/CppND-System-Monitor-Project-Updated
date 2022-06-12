@@ -8,6 +8,8 @@
 #include "ncurses_display.h"
 #include "system.h"
 
+#include <iostream>
+
 using std::string;
 using std::to_string;
 
@@ -42,18 +44,26 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
   mvwprintw(window, row, 10, "");
   wprintw(window, ProgressBar(system.MemoryUtilization()).c_str());
   wattroff(window, COLOR_PAIR(1));
-  mvwprintw(window, ++row, 2,
-            ("Total Processes: " + to_string(system.TotalProcesses())).c_str());
-  mvwprintw(
-      window, ++row, 2,
-      ("Running Processes: " + to_string(system.RunningProcesses())).c_str());
-  mvwprintw(window, ++row, 2,
-            ("Up Time: " + Format::ElapsedTime(system.UpTime())).c_str());
+  string s = to_string(system.TotalProcesses());
+  s = "Total Processes: " + s;
+  mvwprintw(window, ++row, 2, s.c_str());
+
+
+  int n = system.RunningProcesses();
+  s = to_string(n);
+  mvwprintw(window, ++row, 2, ("Running Processes: " + s).c_str());
+  long N = system.UpTime();
+  string s1 = Format::ElapsedTime(N);
+s1 = "Up Time: " + s1;
+
+
+  mvwprintw(window, ++row, 2, s1.c_str());
   wrefresh(window);
 }
 
 void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
                                       WINDOW* window, int n) {
+
   int row{0};
   int const pid_column{2};
   int const user_column{9};
@@ -69,9 +79,12 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
-  int const num_processes = int(processes.size()) > n ? n : processes.size();
-  for (int i = 0; i < num_processes; ++i) {
-    mvwprintw(window, ++row, pid_column, to_string(processes[i].Pid()).c_str());
+  for (int i = 0; i < n; ++i) {
+    //You need to take care of the fact that the cpu utilization has already been multiplied by 100.
+    // Clear the line
+    mvwprintw(window, ++row, pid_column, (string(window->_maxx-2, ' ').c_str()));
+    
+    mvwprintw(window, row, pid_column, to_string(processes[i].Pid()).c_str());
     mvwprintw(window, row, user_column, processes[i].User().c_str());
     float cpu = processes[i].CpuUtilization() * 100;
     mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 4).c_str());
@@ -100,11 +113,18 @@ void NCursesDisplay::Display(System& system, int n) {
     box(system_window, 0, 0);
     box(process_window, 0, 0);
     DisplaySystem(system, system_window);
-    DisplayProcesses(system.Processes(), process_window, n);
+    std::vector<Process>processes = system.Processes();
+    //std::sort(processes.begin(), processes.end());
+
+
+    DisplayProcesses(processes, process_window, n);
+    
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
     std::this_thread::sleep_for(std::chrono::seconds(1));
+    
   }
   endwin();
 }
+
