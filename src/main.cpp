@@ -4,6 +4,14 @@
 
 int main() {
  
+ //std::string  s = LinuxParser::OperatingSystem();
+//std::cout << s << "\n";
+
+//int d;
+//std::cin >> d;
+
+//eturn 0;
+
   //std::cout << "In main \n";
   System system;
   /*auto processes = system.Processes();

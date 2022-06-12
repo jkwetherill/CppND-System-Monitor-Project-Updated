@@ -29,7 +29,7 @@ std::string LinuxParser::OperatingSystem() {
   // assert (filestream.is_open());
   if (!filestream.is_open()) return "";
 
-  std::regex reg_expr{"NAME=\"(\\w+)\""};
+  std::regex reg_expr{"(PRETTY_)*NAME=\"(.+)\""};
 
   std::smatch matches;
 
@@ -37,11 +37,13 @@ std::string LinuxParser::OperatingSystem() {
 
   std::getline(filestream, line);
 
+  //std::cout << line << "\n";
+
   if (!std::regex_search(line, matches, reg_expr))
     return "Unable to parse OS Path file.";
     //throw std::runtime_error("Unable to parse OS Path file.");
 
-  return matches[1];
+  return matches[2];
 }
   /*
 
@@ -244,15 +246,16 @@ string LinuxParser::Command(int pid) {
 string LinuxParser::Ram(int pid) {   // create a file stream
   std::ifstream filestream(kProcDirectory + to_string(pid) + kStatusFilename);
   //assert(filestream.is_open());
-  if (!filestream.is_open()) return "";
+  if (!filestream.is_open()) return "cannot open file";
   //std::regex reg_expr{R"(VmSize:\s+(\d+\s\w+))"};
   std::regex reg_expr{R"(VmSize:\s+(\d+))"};
   std::string line;
+  
   while (std::getline(filestream, line)) {
     std::smatch matches;
     if (std::regex_search(line, matches, reg_expr)) {
       long int ram_kb = str2long(matches[1]);
-      float ram_mb = static_cast<float>(ram_kb)/1000;
+      double ram_mb = static_cast<double>(ram_kb)/1000;
       char out[256];
       sprintf(out, "%.2f", ram_mb);
       std::string out_string(out);

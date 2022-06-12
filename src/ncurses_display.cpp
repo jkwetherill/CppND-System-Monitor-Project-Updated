@@ -114,7 +114,9 @@ void NCursesDisplay::Display(System& system, int n) {
     box(process_window, 0, 0);
     DisplaySystem(system, system_window);
     std::vector<Process>processes = system.Processes();
-    //std::sort(processes.begin(), processes.end());
+
+    
+    std::sort(processes.begin(), processes.end(), [](auto P1, auto P2){return P1 < P2;});
 
 
     DisplayProcesses(processes, process_window, n);
