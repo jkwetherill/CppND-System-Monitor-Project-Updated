@@ -320,15 +320,29 @@ long int LinuxParser::UpTime(int pid)
 
     std::string line;
     std::getline(filestream, line);
+
+    /*
     std::regex reg_expr{
         R"(\d+ \S+ \w+ \d+ \d+ \d+ \d+ [\d-]+ \d+ \d+ \d+ \d+ \d+ \d+ \d+ \d+ \d+ \d+ \d+ \d+ \d+ (\d+))"};
-    std::smatch matches;
+    std::smatch matches;*/
+
+
+  std::regex reg_expr{R"(\d+ \S+ \w+ [\d-]+ [\d-]+ [\d-]+ [\d-]+ [\d-]+ [\d-]+ [\d-]+ [\d-]+ [\d-]+ [\d-]+ (\d+) (\d+) (\d+) (\d+) [\d-]+ [\d-]+ [\d-]+ [\d-]+ (\d+))"};
+  std::smatch matches;
+
+
     if (!std::regex_search(line, matches, reg_expr)) return -1;
     
-    long int start_time_jiffies = str2long(matches[1]);
+    long int start_time_jiffies = str2long(matches[5]);
 
     return UpTime() - start_time_jiffies/Hertz;
     //return start_time_jiffies/Hertz;
+
+
+
+ 
+
+
 }
 
 
